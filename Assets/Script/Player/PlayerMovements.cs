@@ -75,7 +75,6 @@ public class PlayerMovements : MonoBehaviour
 
     private void UpdateHorizontalMovements(){
         if (_boxGroundSensor.IsGrounded()){
-            print("Move");
             _rigidbody2D.velocity = new Vector2(_moveAction.x * _movementSpeed, _rigidbody2D.velocity.y);
         }
         else{
@@ -90,7 +89,6 @@ public class PlayerMovements : MonoBehaviour
     }
 
     private void OnJump(){
-        print("Dojump");
         if(!_boxGroundSensor.IsGrounded()) return;
         
         _rigidbody2D.AddForce(Vector2.up * _jumpPower, ForceMode2D.Impulse);
