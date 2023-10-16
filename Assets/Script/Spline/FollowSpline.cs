@@ -13,7 +13,7 @@ public class FollowSpline : MonoBehaviour
     {
         if(distance > _spline.length())
         {
-            distance = 0;
+            // distance = 0;
         }
         else
         {
@@ -24,7 +24,7 @@ public class FollowSpline : MonoBehaviour
 
         Orientation orientation = _spline.computeOrientationWithRMFWithLength(distance);
 
-        transform.rotation = Quaternion.LookRotation(_spline.transform.TransformDirection(orientation.forward), _spline.transform.TransformDirection( orientation.upward));
+        // transform.rotation = Quaternion.LookRotation(_spline.transform.TransformDirection(orientation.forward), _spline.transform.TransformDirection( orientation.upward));
 
         transform.position += transform.TransformDirection(offset);
     }
