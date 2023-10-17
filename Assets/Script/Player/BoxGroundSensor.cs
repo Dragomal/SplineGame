@@ -5,7 +5,6 @@ public class BoxGroundSensor : GroundSensor
     [SerializeField] private LayerMask _groundLayerMask = 0;
     private RaycastHit2D _hit;
     public override bool IsGrounded(){
-        print(_hit.collider);
         if(_hit.collider != null){
             return true;
         }

@@ -6,33 +6,6 @@ using Unity.VisualScripting;
 using UnityEngine.iOS;
 public class PlayerMovements : MonoBehaviour
 {
-    // [SerializeField, Range(1, 20)] private float _movementSpeed = 5;
-    // private Rigidbody2D _rigidBody2D;
-    // private InputAction _moveInputAction, _jumpInmputAction;
-    // private Vector2 _moveInput = Vector2.zero;
-    // private bool _jumpInput;
-
-    
-    // void Start()
-    // {
-    //     _rigidBody2D = GetComponent<Rigidbody2D>();
-    //     PlayerInput playerInput = GetComponent<PlayerInput>();
-    //     _moveInputAction = playerInput.actions.FindAction("Move");
-    //     _jumpInmputAction = playerInput.actions.FindAction("Jump");
-    // }
-    // void FixedUpdate(){
-    //     _moveInput = _moveInputAction.ReadValue<Vector2>();
-    //     Jump();
-    //     _rigidBody2D.velocity = new Vector2(_movementSpeed * _moveInput.x, _rigidBody2D.velocity.y);
-    // }
-    // void Jump(){
-    //     RaycastHit2D hit = Physics2D.CircleCast(this.transform.position, 0.5f, Vector2.down, 1f);
-        
-    //     _jumpInput = _jumpInmputAction.ReadValue<float>() > 0.5f ? true : false;
-    //     if(_jumpInput && hit){
-    //         _rigidBody2D.AddForce(new Vector2(_rigidBody2D.velocity.x, 1), ForceMode2D.Impulse);
-    //     }
-    // }
     [SerializeField, Range(0,10)] private float _movementSpeed;
     [SerializeField, Range(0,50)] private float _jumpPower;
     [SerializeField, Range(0,1)] private float _airControl;
@@ -40,9 +13,9 @@ public class PlayerMovements : MonoBehaviour
     [SerializeField, Range(0,4)] private float _gravityScaleRelease;
     [SerializeField, Range(0,4)] private float _gravityScaleNormal;
     
-    private bool _isGrounded;
+    private bool _isWalled = false;
     private bool _jumpAction;
-    private Vector2 _moveAction;
+    private Vector2 _moveAction, _normalOfWall;
     private Rigidbody2D _rigidbody2D;
     private BoxGroundSensor _boxGroundSensor;
     private InputAction _onMoveAction;
@@ -57,14 +30,22 @@ public class PlayerMovements : MonoBehaviour
     }
     private void FixedUpdate(){
         ReadValues();
-        UpdateHorizontalMovements();
+        if(!_isWalled){
+            UpdateHorizontalMovements();
+        }
         UpdateGravityScale();
         if(_jumpAction){
-            OnJump();
+            if(_isWalled){
+                OnWallJump(_normalOfWall);
+            }
+            else{
+                OnJump();
+            }
         }
     }
 
     private void UpdateGravityScale(){
+        if(_isWalled) return;
         if (_rigidbody2D.velocity.y < 0){
             _rigidbody2D.gravityScale = _gravityScaleNormal;
         }
@@ -88,10 +69,35 @@ public class PlayerMovements : MonoBehaviour
         _moveAction = _onMoveAction.ReadValue<Vector2>();
     }
 
+    public void OnCollisionEnter2D(Collision2D collision){
+        _normalOfWall = collision.contacts[0].normal;
+        if(_normalOfWall == Vector2.up) return;
+        
+        if(collision.gameObject.CompareTag("Wall")){
+            _isWalled = true;
+            _rigidbody2D.velocity = Vector2.zero;
+            _rigidbody2D.gravityScale /= 2;
+            StartCoroutine(WaitToMove());
+        }
+    }
+    public void OnCollisionExit2D(Collision2D collision){
+        if(collision.gameObject.CompareTag("Wall")){
+            _isWalled = false;
+            _rigidbody2D.gravityScale *= 2;
+        }
+    }
     private void OnJump(){
         if(!_boxGroundSensor.IsGrounded()) return;
-        
         _rigidbody2D.AddForce(Vector2.up * _jumpPower, ForceMode2D.Impulse);
         _rigidbody2D.gravityScale = _gravityScaleJump;
+    }
+    private void OnWallJump(Vector2 normalOfWall){
+        _rigidbody2D.AddForce(new Vector2(normalOfWall.x, 1) * _jumpPower * 15f, ForceMode2D.Impulse);
+        _rigidbody2D.gravityScale *= 2;
+        _isWalled = false;
+    }
+    IEnumerator WaitToMove(){
+        yield return new WaitForSeconds(0.5f);
+        _isWalled = false;
     }
 }
