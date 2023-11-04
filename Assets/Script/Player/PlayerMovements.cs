@@ -6,13 +6,14 @@ using Unity.VisualScripting;
 using UnityEngine.iOS;
 public class PlayerMovements : MonoBehaviour
 {
-    [SerializeField, Range(0,10)] private float _movementSpeed;
+    [SerializeField, Range(0,20)] private float _movementSpeed;
     [SerializeField, Range(0,50)] private float _jumpPower;
     [SerializeField, Range(0,1)] private float _airControl;
     [SerializeField, Range(0,4)] private float _gravityScaleJump;
     [SerializeField, Range(0,4)] private float _gravityScaleRelease;
     [SerializeField, Range(0,4)] private float _gravityScaleNormal;
     
+    //Touche un mur ou non
     private bool _isWalled = false;
     private bool _jumpAction;
     private Vector2 _moveAction, _normalOfWall;
@@ -70,9 +71,11 @@ public class PlayerMovements : MonoBehaviour
     }
 
     public void OnCollisionEnter2D(Collision2D collision){
+        //Récupère le mur touché et sa normal
         _normalOfWall = collision.contacts[0].normal;
         if(_normalOfWall == Vector2.up) return;
         
+        //Pose le joueur sur le mur et le fait glisser lentement
         if(collision.gameObject.CompareTag("Wall")){
             _isWalled = true;
             _rigidbody2D.velocity = Vector2.zero;
@@ -81,6 +84,7 @@ public class PlayerMovements : MonoBehaviour
         }
     }
     public void OnCollisionExit2D(Collision2D collision){
+        //Réactive les mouvements du joueur si il part du mur
         if(collision.gameObject.CompareTag("Wall")){
             _isWalled = false;
             _rigidbody2D.gravityScale *= 2;
@@ -92,6 +96,7 @@ public class PlayerMovements : MonoBehaviour
         _rigidbody2D.gravityScale = _gravityScaleJump;
     }
     private void OnWallJump(Vector2 normalOfWall){
+        //Fait un saut en fonction de la direction du mur
         _rigidbody2D.AddForce(new Vector2(normalOfWall.x, 1) * _jumpPower * 15f, ForceMode2D.Impulse);
         _rigidbody2D.gravityScale *= 2;
         _isWalled = false;
