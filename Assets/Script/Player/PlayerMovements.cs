@@ -14,7 +14,7 @@ public class PlayerMovements : MonoBehaviour
     [SerializeField, Range(0,4)] private float _gravityScaleNormal;
     
     //Touche un mur ou non
-    private bool _isWalled = false;
+    private bool _isWalled = false, _isWallJumpable;
     private bool _jumpAction;
     private Vector2 _moveAction, _normalOfWall;
     private Rigidbody2D _rigidbody2D;
@@ -36,7 +36,7 @@ public class PlayerMovements : MonoBehaviour
         }
         UpdateGravityScale();
         if(_jumpAction){
-            if(_isWalled){
+            if(_isWalled && _isWallJumpable){
                 OnWallJump(_normalOfWall);
             }
             else{
@@ -78,6 +78,7 @@ public class PlayerMovements : MonoBehaviour
         //Pose le joueur sur le mur et le fait glisser lentement
         if(collision.gameObject.CompareTag("Wall")){
             _isWalled = true;
+            _isWallJumpable = true;
             _rigidbody2D.velocity = Vector2.zero;
             _rigidbody2D.gravityScale /= 2;
             StartCoroutine(WaitToMove());

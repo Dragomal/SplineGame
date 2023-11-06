@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerState : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class PlayerState : MonoBehaviour
         Rigidbody2D playerRigidbody2D = GetComponent<Rigidbody2D>();
         playerRigidbody2D.velocity = Vector2.zero;
         playerRigidbody2D.gravityScale = 0;
+        LoadScene("Menu");
     }
     public void Reset(){
         //Réactive les mouvements du joueur et l'unfreeze
@@ -23,5 +25,12 @@ public class PlayerState : MonoBehaviour
         playerRigidbody2D.gravityScale = 1;
 
         transform.position = _startCoos.position;
+    }
+    public void LoadScene(string sceneName){
+        StartCoroutine(LoadSceneCoroutine(sceneName));
+    }
+    public IEnumerator LoadSceneCoroutine(string sceneName){
+        yield return new WaitForSeconds(0.25f);
+        SceneManager.LoadScene(sceneName);
     }
 }
