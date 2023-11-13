@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.VisualScripting;
-using UnityEngine.iOS;
 public class PlayerMovements : MonoBehaviour
 {
     [SerializeField, Range(0,20)] private float _movementSpeed;
@@ -12,10 +11,20 @@ public class PlayerMovements : MonoBehaviour
     [SerializeField, Range(0,4)] private float _gravityScaleJump;
     [SerializeField, Range(0,4)] private float _gravityScaleRelease;
     [SerializeField, Range(0,4)] private float _gravityScaleNormal;
+    [SerializeField] private ParticleSystem _particleSystem;
     
     //Touche un mur ou non
     private bool _isWalled = false, _isWallJumpable;
     private bool _jumpAction;
+    public bool _CanDoubleJump{
+        get {return _canDoubleJump;}
+        set {
+            _canDoubleJump = value;
+            PlayerState playerState = GetComponent<PlayerState>();
+            playerState.ChangeJetpack(_canDoubleJump);
+        }
+    }
+    private bool _canDoubleJump;
     private Vector2 _moveAction, _normalOfWall;
     private Rigidbody2D _rigidbody2D;
     private BoxGroundSensor _boxGroundSensor;
@@ -35,8 +44,13 @@ public class PlayerMovements : MonoBehaviour
             UpdateHorizontalMovements();
         }
         UpdateGravityScale();
+        if(_rigidbody2D.velocity.y == 0 && _boxGroundSensor.IsGrounded()){
+            if(_isWalled){
+                _isWalled = false;
+            }
+        }
         if(_jumpAction){
-            if(_isWalled && _isWallJumpable){
+            if(_isWalled && _isWallJumpable && !_boxGroundSensor.IsGrounded()){
                 OnWallJump(_normalOfWall);
             }
             else{
@@ -60,17 +74,23 @@ public class PlayerMovements : MonoBehaviour
             _rigidbody2D.velocity = new Vector2(_moveAction.x * _movementSpeed, _rigidbody2D.velocity.y);
         }
         else{
+            //! A voir François : Pk il est trop vénère sur le WallJump
             float airMoveAction = Mathf.Lerp(_rigidbody2D.velocity.x, _moveAction.x * _movementSpeed, _airControl);
             _rigidbody2D.velocity = new Vector2(airMoveAction, _rigidbody2D.velocity.y);
         }
     }
-
     private void ReadValues(){
         _jumpAction = _onJumpAction.ReadValue<float>() > 0.5f ? true : false;
         _moveAction = _onMoveAction.ReadValue<Vector2>();
     }
 
     public void OnCollisionEnter2D(Collision2D collision){
+        float xPos = collision.contacts[0].point.x;
+        float yPos = collision.contacts[0].point.y;
+        Vector2 direction = collision.contacts[0].normal;
+        Quaternion rotation = Quaternion.Euler(direction.x, direction.y, 0);
+        Instantiate(_particleSystem, new Vector3(xPos, yPos, 0), rotation);
+
         //Récupère le mur touché et sa normal
         _normalOfWall = collision.contacts[0].normal;
         if(_normalOfWall == Vector2.up) return;
@@ -79,9 +99,13 @@ public class PlayerMovements : MonoBehaviour
         if(collision.gameObject.CompareTag("Wall")){
             _isWalled = true;
             _isWallJumpable = true;
-            _rigidbody2D.velocity = Vector2.zero;
+            
+            float xVelocity = _rigidbody2D.velocity.x;
+            float yVelocity = _rigidbody2D.velocity.y;
+            _rigidbody2D.velocity = new Vector2(0, (xVelocity * 1.5f) + yVelocity);
+
             _rigidbody2D.gravityScale /= 2;
-            StartCoroutine(WaitToMove());
+            // StartCoroutine(WaitToMove());
         }
     }
     public void OnCollisionExit2D(Collision2D collision){
@@ -92,13 +116,25 @@ public class PlayerMovements : MonoBehaviour
         }
     }
     private void OnJump(){
-        if(!_boxGroundSensor.IsGrounded()) return;
+        if(!_boxGroundSensor.IsGrounded()){
+            if(_canDoubleJump && !_jumpAction && !_isWalled){
+                _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, 0);
+                _rigidbody2D.AddForce(Vector2.up * _jumpPower * 10, ForceMode2D.Impulse);
+                _rigidbody2D.gravityScale = _gravityScaleJump;
+                _CanDoubleJump = false;
+                return;
+            }
+            else{
+                return;
+            }
+        }
         _rigidbody2D.AddForce(Vector2.up * _jumpPower, ForceMode2D.Impulse);
         _rigidbody2D.gravityScale = _gravityScaleJump;
     }
     private void OnWallJump(Vector2 normalOfWall){
         //Fait un saut en fonction de la direction du mur
-        _rigidbody2D.AddForce(new Vector2(normalOfWall.x, 1) * _jumpPower * 15f, ForceMode2D.Impulse);
+        _rigidbody2D.velocity = new Vector2(_rigidbody2D.velocity.x, 0);
+        _rigidbody2D.AddForce(new Vector2(normalOfWall.x * 20, 15) * _jumpPower, ForceMode2D.Impulse);
         _rigidbody2D.gravityScale *= 2;
         _isWalled = false;
     }
