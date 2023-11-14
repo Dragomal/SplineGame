@@ -11,6 +11,7 @@ public class PlayerMovements : MonoBehaviour
     [SerializeField, Range(0,4)] private float _gravityScaleJump;
     [SerializeField, Range(0,4)] private float _gravityScaleRelease;
     [SerializeField, Range(0,4)] private float _gravityScaleNormal;
+    [SerializeField] private Transform _particleSystemAnchor;
     [SerializeField] private ParticleSystem _particleSystem;
     
     //Touche un mur ou non
@@ -137,6 +138,10 @@ public class PlayerMovements : MonoBehaviour
         _rigidbody2D.AddForce(new Vector2(normalOfWall.x * 20, 15) * _jumpPower, ForceMode2D.Impulse);
         _rigidbody2D.gravityScale *= 2;
         _isWalled = false;
+    }
+    public void InstantiateParticle(){
+        if(!_boxGroundSensor.IsGrounded()) return;
+        Instantiate(_particleSystem, _particleSystemAnchor.position, _particleSystemAnchor.rotation);
     }
     IEnumerator WaitToMove(){
         yield return new WaitForSeconds(0.5f);

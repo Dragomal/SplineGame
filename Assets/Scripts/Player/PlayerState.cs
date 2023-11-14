@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Timeline;
 
 public class PlayerState : MonoBehaviour
 {
@@ -41,11 +43,13 @@ public class PlayerState : MonoBehaviour
         }
     }
     void Update(){
-        if(_rb2D.velocity.x < 0){
-            transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
-        }
-        else{
-            transform.localRotation = Quaternion.Euler(Vector3.zero);
+        if(_rb2D.velocity.x != 0){
+            if(_rb2D.velocity.x < 0){
+                transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
+            }
+            else{
+                transform.localRotation = Quaternion.Euler(Vector3.zero);
+            }
         }
     }
     public void LoadScene(string sceneName){
