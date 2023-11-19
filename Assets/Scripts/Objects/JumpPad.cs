@@ -17,6 +17,7 @@ public class JumpPad : MonoBehaviour
 
             spriteRenderer.color = Color.white;
             isUsed = true;
+            Destroy(this.gameObject);
         }
     }
 }
