@@ -74,14 +74,6 @@ public class PlayerMovements : MonoBehaviour
                 _isWalled = false;
             }
         }
-        // if(_jumpAction){
-        //     if(_isWalled && _isWallJumpable && !_boxGroundSensor.IsGrounded()){
-        //         OnWallJump(_normalOfWall);
-        //     }
-        //     else{
-        //         OnJump();
-        //     }
-        // }
     }
 
     private void UpdateCanJump()
@@ -164,13 +156,6 @@ public class PlayerMovements : MonoBehaviour
         {
             _isWalled = true;
             _isWallJumpable = true;
-
-            //float xVelocity = _rigidbody2D.velocity.x;
-            //float yVelocity = _rigidbody2D.velocity.y;
-            //_rigidbody2D.velocity = new Vector2(0, (xVelocity * 1.5f) + yVelocity);
-
-            //_rigidbody2D.gravityScale /= 2;
-            // StartCoroutine(WaitToMove());
         }
     }
     public void OnCollisionExit2D(Collision2D collision)
@@ -179,7 +164,6 @@ public class PlayerMovements : MonoBehaviour
         if (collision.gameObject.CompareTag("Wall"))
         {
             _isWalled = false;
-            //_rigidbody2D.gravityScale *= 2;
         }
     }
     private void OnJump()
@@ -243,10 +227,5 @@ public class PlayerMovements : MonoBehaviour
     {
         if (!_boxGroundSensor.IsGrounded()) return;
         Instantiate(_particleSystem, _particleSystemAnchor.position, _particleSystemAnchor.rotation);
-    }
-    IEnumerator WaitToMove()
-    {
-        yield return new WaitForSeconds(0.5f);
-        _isWalled = false;
     }
 }

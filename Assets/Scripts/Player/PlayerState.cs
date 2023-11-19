@@ -3,22 +3,37 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Timeline;
+using Cinemachine;
 
 public class PlayerState : MonoBehaviour
 {
     [SerializeField] private Transform _startCoos;
+    [SerializeField] private ParticleSystem _particleSystem;
+    [SerializeField] private GameObject _cameraOnDeath;
     private Rigidbody2D _rb2D;
+    private CinemachineImpulseSource _impulseSource;
     public SpriteRenderer _playerSpriteRenderer, _jetpackSpriteRenderer;
     void Start(){
         _rb2D = GetComponent<Rigidbody2D>();
         _playerSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        _impulseSource = GetComponentInChildren<CinemachineImpulseSource>();
     }
     public void Die(){
         //Désactive les mouvements du joueur et le freeze
         PlayerMovements playerMovements = GetComponent<PlayerMovements>();
         playerMovements.enabled = false;
         
+        GameObject camera = GameObject.FindGameObjectWithTag("MainCamera");
+        FollowSpline cameraFollow = camera.GetComponent<FollowSpline>();
+        cameraFollow.enabled = false;
+        _cameraOnDeath.SetActive(true);
+        
+        CameraShakeManager.instance.CameraShake(_impulseSource);
+
+        _playerSpriteRenderer.enabled = false;
+        _jetpackSpriteRenderer.enabled = false;
+        Instantiate(_particleSystem, transform.position, Quaternion.identity);
+
         Rigidbody2D playerRigidbody2D = GetComponent<Rigidbody2D>();
         playerRigidbody2D.velocity = Vector2.zero;
         playerRigidbody2D.gravityScale = 0;
@@ -56,7 +71,7 @@ public class PlayerState : MonoBehaviour
         StartCoroutine(LoadSceneCoroutine(sceneName));
     }
     public IEnumerator LoadSceneCoroutine(string sceneName){
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(1.25f);
         SceneManager.LoadScene(sceneName);
     }
 }
