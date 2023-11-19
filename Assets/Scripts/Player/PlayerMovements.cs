@@ -7,7 +7,7 @@ public class PlayerMovements : MonoBehaviour
 {
     [SerializeField, Range(0, 20)] private float _movementSpeed;
     [SerializeField, Range(0, 50)] private float _jumpPower;
-    [SerializeField, Range(0, 1)] private float _airControl;
+    [SerializeField, Range(0, 100)] private float _airControl;
     [SerializeField, Range(0, 4)] private float _gravityScaleJump;
     [SerializeField, Range(0, 4)] private float _gravityScaleRelease;
     [SerializeField, Range(0, 4)] private float _gravityScaleNormal;
@@ -137,7 +137,9 @@ public class PlayerMovements : MonoBehaviour
             return;
         }
 
-        float airMoveAction = Mathf.Lerp(_rigidbody2D.velocity.x, _moveAction.x * _movementSpeed, _airControl);
+
+        float airMoveAction = Mathf.MoveTowards(_rigidbody2D.velocity.x, _moveAction.x * _movementSpeed, _airControl * Time.fixedDeltaTime); 
+        //float airMoveAction = Mathf.Lerp(_rigidbody2D.velocity.x, _moveAction.x * _movementSpeed, _airControl);
         _rigidbody2D.velocity = new Vector2(airMoveAction, _rigidbody2D.velocity.y);
 
     }

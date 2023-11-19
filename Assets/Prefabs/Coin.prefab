@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 8328465069575904654}
   m_Layer: 0
   m_Name: Coin
-  m_TagString: Untagged
+  m_TagString: Coin
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -137,6 +137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _range: 1
   particles: {fileID: 7848634024804036499, guid: 1766a3c3355810a488da7e7efcd8af64, type: 3}
+  coinCountText: {fileID: 0}
 --- !u!198 &2732529479450352917
 ParticleSystem:
   m_ObjectHideFlags: 0
