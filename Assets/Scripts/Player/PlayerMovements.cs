@@ -33,6 +33,7 @@ public class PlayerMovements : MonoBehaviour
     private BoxGroundSensor _boxGroundSensor;
     private InputAction _onMoveAction;
     private InputAction _onJumpAction;
+    private AudioSource _jumpAudio;
 
     private bool _canJump = false;
     private float _isGroundedJumpTimeRemaining = 0;
@@ -50,6 +51,7 @@ public class PlayerMovements : MonoBehaviour
 
     private void Start()
     {
+        _jumpAudio = GetComponent<AudioSource>();
         _rigidbody2D = GetComponent<Rigidbody2D>();
         _boxGroundSensor = GetComponent<BoxGroundSensor>();
 
@@ -196,6 +198,7 @@ public class PlayerMovements : MonoBehaviour
 
     private void StartJump()
     {
+        _jumpAudio.Play();
         _isJumping = true;
         _jumpTimeRemaining = _jumpTime;
     }

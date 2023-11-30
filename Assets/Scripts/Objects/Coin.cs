@@ -23,33 +23,10 @@ public class Coin : MonoBehaviour
     }
     void OnTriggerEnter2D(Collider2D other){
         if(other.CompareTag("Player")){
-            GameObject player = other.gameObject;
-            StartCoroutine(DestroyCoin(player));       
-        }
-    }
-    IEnumerator DestroyCoin(GameObject player){
-
-        //Désactive les visuels et Hitbox de la pièce
-        ParticleSystem coinParticles = GetComponent<ParticleSystem>();
-        coinParticles.Stop();
-        SpriteRenderer coinRenderer = GetComponent<SpriteRenderer>();
-        coinRenderer.enabled = false;
-        CircleCollider2D hitboxCircle = GetComponent<CircleCollider2D>();
-        hitboxCircle.enabled = false;
-
-        //Ajoute 1 au compteur UI
-        CoinManager playerCoinManager= player.GetComponent<CoinManager>();
-        Debug.Log( playerCoinManager);
-        playerCoinManager.AddCoin();
-
-
-        //Effets de pickup (Particules / Son)
-        Instantiate(particles, transform.position, Quaternion.identity);
-
-        //Attend 1 seconde
-        yield return new WaitForSeconds(1.25f);
-
-        //Destroy la pièce
-        Destroy(this.gameObject);
+            CoinManager playerCoinManager= other.gameObject.GetComponent<CoinManager>();
+            playerCoinManager.AddCoin();
+            Instantiate(particles, transform.position, Quaternion.identity);
+            Destroy(this.gameObject);   
+        } 
     }
 }

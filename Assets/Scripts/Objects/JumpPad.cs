@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class JumpPad : MonoBehaviour
 {
-    SpriteRenderer spriteRenderer;
+    [SerializeField] private GameObject particles;
+    private SpriteRenderer spriteRenderer;
     private bool isUsed;
     void Start(){
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
-    public void OnCollisionEnter2D(Collision2D collision){
+    void OnTriggerEnter2D(Collider2D collision){
         PlayerMovements playerMovements = collision.gameObject.GetComponent<PlayerMovements>();
         if(collision.gameObject.CompareTag("Player")){
             if(playerMovements._CanDoubleJump || isUsed) return;
@@ -17,6 +18,9 @@ public class JumpPad : MonoBehaviour
 
             spriteRenderer.color = Color.white;
             isUsed = true;
+
+            Instantiate(particles, transform.position, Quaternion.identity, collision.gameObject.transform);
+
             Destroy(this.gameObject);
         }
     }

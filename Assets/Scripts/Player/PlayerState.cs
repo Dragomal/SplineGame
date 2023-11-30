@@ -7,7 +7,6 @@ using Cinemachine;
 
 public class PlayerState : MonoBehaviour
 {
-    [SerializeField] private Transform _startCoos;
     [SerializeField] private ParticleSystem _particleSystem;
     [SerializeField] private GameObject _cameraOnDeath;
     private Rigidbody2D _rb2D;
@@ -39,16 +38,16 @@ public class PlayerState : MonoBehaviour
         playerRigidbody2D.gravityScale = 0;
         LoadScene("Menu");
     }
-    public void Reset(){
-        //Réactive les mouvements du joueur et l'unfreeze
-        PlayerMovements playerMovements = GetComponent<PlayerMovements>();
-        playerMovements.enabled = true;
+    // public void Reset(){
+    //     //Réactive les mouvements du joueur et l'unfreeze
+    //     PlayerMovements playerMovements = GetComponent<PlayerMovements>();
+    //     playerMovements.enabled = true;
 
-        Rigidbody2D playerRigidbody2D = GetComponent<Rigidbody2D>();
-        playerRigidbody2D.gravityScale = 1;
+    //     Rigidbody2D playerRigidbody2D = GetComponent<Rigidbody2D>();
+    //     playerRigidbody2D.gravityScale = 1;
 
-        transform.position = _startCoos.position;
-    }
+    //     transform.position = _startCoos.position;
+    // }
     public void ChangeJetpack(bool isJetpack){
         if(isJetpack){
             _jetpackSpriteRenderer.color = new Color32(197, 219, 90, 86);
